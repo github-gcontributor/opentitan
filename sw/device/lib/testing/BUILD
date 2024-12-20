@@ -2,7 +2,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-load("//rules:opentitan.bzl", "OPENTITAN_CPU")
+load("//rules/opentitan:defs.bzl", "OPENTITAN_CPU")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -458,7 +458,9 @@ cc_library(
     hdrs = ["spi_device_testutils.h"],
     target_compatible_with = [OPENTITAN_CPU],
     deps = [
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:status",
+        "//sw/device/lib/dif:pinmux",
         "//sw/device/lib/dif:spi_device",
         "//sw/device/lib/testing/json:spi_passthru",
         "//sw/device/lib/testing/test_framework:check",

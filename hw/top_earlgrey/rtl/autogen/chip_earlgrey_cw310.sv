@@ -904,14 +904,7 @@ module chip_earlgrey_cw310 #(
 
   prim_mubi_pkg::mubi4_t ast_init_done;
 
-  ast #(
-    .EntropyStreams(ast_pkg::EntropyStreams),
-    .AdcChannels(ast_pkg::AdcChannels),
-    .AdcDataWidth(ast_pkg::AdcDataWidth),
-    .UsbCalibWidth(ast_pkg::UsbCalibWidth),
-    .Ast2PadOutWidth(ast_pkg::Ast2PadOutWidth),
-    .Pad2AstInWidth(ast_pkg::Pad2AstInWidth)
-  ) u_ast (
+  ast u_ast (
     // external POR
     .por_ni                ( rst_n ),
 
@@ -1086,9 +1079,9 @@ module chip_earlgrey_cw310 #(
     .KeymgrKmacEnMasking(0),
     .SecKmacCmdDelay(0),
     .SecKmacIdleAcceptSwMsg(1'b0),
+    .RvCoreIbexSecureIbex(0),
     .RomCtrlBootRomInitFile(BootRomInitFile),
     .RvCoreIbexRegFile(ibex_pkg::RegFileFPGA),
-    .RvCoreIbexSecureIbex(0),
     .SramCtrlMainInstrExec(1),
     .PinmuxAonTargetCfg(PinmuxTargetCfg)
   ) top_earlgrey (

@@ -1,6 +1,11 @@
 // Copyright lowRISC contributors (OpenTitan project).
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
+//
+// ------------------- W A R N I N G: A U T O - G E N E R A T E D   C O D E !! -------------------//
+// PLEASE DO NOT HAND-EDIT THIS FILE. IT HAS BEEN AUTO-GENERATED WITH THE FOLLOWING COMMAND:
+// util/topgen.py -t hw/top_earlgrey/data/top_earlgrey.hjson
+// -o hw/top_earlgrey
 
 #ifndef OPENTITAN_HW_TOP_EARLGREY_SW_AUTOGEN_TOP_EARLGREY_MEMORY_H_
 #define OPENTITAN_HW_TOP_EARLGREY_SW_AUTOGEN_TOP_EARLGREY_MEMORY_H_
@@ -147,7 +152,7 @@
  * address between #TOP_EARLGREY_GPIO_BASE_ADDR and
  * `TOP_EARLGREY_GPIO_BASE_ADDR + TOP_EARLGREY_GPIO_SIZE_BYTES`.
  */
-#define TOP_EARLGREY_GPIO_SIZE_BYTES 0x40
+#define TOP_EARLGREY_GPIO_SIZE_BYTES 0x80
 /**
  * Peripheral base address for spi_device in top earlgrey.
  *
@@ -285,22 +290,39 @@
  */
 #define TOP_EARLGREY_OTP_CTRL_PRIM_SIZE_BYTES 0x20
 /**
- * Peripheral base address for lc_ctrl in top earlgrey.
+ * Peripheral base address for regs device on lc_ctrl in top earlgrey.
  *
  * This should be used with #mmio_region_from_addr to access the memory-mapped
  * registers associated with the peripheral (usually via a DIF).
  */
-#define TOP_EARLGREY_LC_CTRL_BASE_ADDR 0x40140000
+#define TOP_EARLGREY_LC_CTRL_REGS_BASE_ADDR 0x40140000
 
 /**
- * Peripheral size for lc_ctrl in top earlgrey.
+ * Peripheral size for regs device on lc_ctrl in top earlgrey.
  *
  * This is the size (in bytes) of the peripheral's reserved memory area. All
  * memory-mapped registers associated with this peripheral should have an
- * address between #TOP_EARLGREY_LC_CTRL_BASE_ADDR and
- * `TOP_EARLGREY_LC_CTRL_BASE_ADDR + TOP_EARLGREY_LC_CTRL_SIZE_BYTES`.
+ * address between #TOP_EARLGREY_LC_CTRL_REGS_BASE_ADDR and
+ * `TOP_EARLGREY_LC_CTRL_REGS_BASE_ADDR + TOP_EARLGREY_LC_CTRL_REGS_SIZE_BYTES`.
  */
-#define TOP_EARLGREY_LC_CTRL_SIZE_BYTES 0x100
+#define TOP_EARLGREY_LC_CTRL_REGS_SIZE_BYTES 0x100
+/**
+ * Peripheral base address for dmi device on lc_ctrl in top earlgrey.
+ *
+ * This should be used with #mmio_region_from_addr to access the memory-mapped
+ * registers associated with the peripheral (usually via a DIF).
+ */
+#define TOP_EARLGREY_LC_CTRL_DMI_BASE_ADDR 0x0
+
+/**
+ * Peripheral size for dmi device on lc_ctrl in top earlgrey.
+ *
+ * This is the size (in bytes) of the peripheral's reserved memory area. All
+ * memory-mapped registers associated with this peripheral should have an
+ * address between #TOP_EARLGREY_LC_CTRL_DMI_BASE_ADDR and
+ * `TOP_EARLGREY_LC_CTRL_DMI_BASE_ADDR + TOP_EARLGREY_LC_CTRL_DMI_SIZE_BYTES`.
+ */
+#define TOP_EARLGREY_LC_CTRL_DMI_SIZE_BYTES 0x1000
 /**
  * Peripheral base address for alert_handler in top earlgrey.
  *
@@ -658,6 +680,23 @@
  * `TOP_EARLGREY_RV_DM_MEM_BASE_ADDR + TOP_EARLGREY_RV_DM_MEM_SIZE_BYTES`.
  */
 #define TOP_EARLGREY_RV_DM_MEM_SIZE_BYTES 0x1000
+/**
+ * Peripheral base address for dbg device on rv_dm in top earlgrey.
+ *
+ * This should be used with #mmio_region_from_addr to access the memory-mapped
+ * registers associated with the peripheral (usually via a DIF).
+ */
+#define TOP_EARLGREY_RV_DM_DBG_BASE_ADDR 0x1000
+
+/**
+ * Peripheral size for dbg device on rv_dm in top earlgrey.
+ *
+ * This is the size (in bytes) of the peripheral's reserved memory area. All
+ * memory-mapped registers associated with this peripheral should have an
+ * address between #TOP_EARLGREY_RV_DM_DBG_BASE_ADDR and
+ * `TOP_EARLGREY_RV_DM_DBG_BASE_ADDR + TOP_EARLGREY_RV_DM_DBG_SIZE_BYTES`.
+ */
+#define TOP_EARLGREY_RV_DM_DBG_SIZE_BYTES 0x200
 /**
  * Peripheral base address for rv_plic in top earlgrey.
  *

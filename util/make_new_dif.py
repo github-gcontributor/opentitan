@@ -87,7 +87,8 @@ def main():
     # Parse CMD line args.
     ips = []
 
-    # Parse toplevel Hjson to get IPs that are templated / generated with IPgen.
+    # Parse toplevel Hjson to get IPs that are generated with IPgen and those
+    # that are under <top>/ip.
     if args.topcfg:
         topcfg_path = args.topcfg
     else:
@@ -98,9 +99,9 @@ def main():
     except FileNotFoundError:
         print(f"hjson {topcfg_path} could not be found")
         sys.exit(1)
-    templated_modules = lib.get_templated_modules(topcfg)
     ipgen_modules = lib.get_ipgen_modules(topcfg)
     reggen_top_modules = lib.get_top_reggen_modules(topcfg)
+    all_modules = [m['type'] for m in topcfg['module']]
 
     # Check for regeneration mode (used in CI check:
     # ci/scripts/check-generated.sh)
@@ -115,17 +116,19 @@ def main():
             # (/path/to/dif_uart_autogen.c) and returns the IP name in lower
             # case snake mode (i.e., uart).
             ip_name_snake = Path(autogen_src_filename).stem[4:-8]
+            # Only considers IPs for that particular top.
+            if ip_name_snake not in all_modules:
+                continue
             # NOTE: ip.name_long_* not needed for auto-generated files which
             # are the only files (re-)generated in regen mode.
             ips.append(
-                Ip(ip_name_snake, "AUTOGEN", templated_modules, ipgen_modules,
-                   reggen_top_modules))
+                Ip(ip_name_snake, "AUTOGEN", ipgen_modules, reggen_top_modules))
     else:
         assert args.ip_name_snake and args.ip_name_long, \
             "ERROR: pass --ip-name-snake and --ip-name-long when --mode=new."
         ips.append(
-            Ip(args.ip_name_snake, args.ip_name_long, templated_modules,
-               ipgen_modules, reggen_top_modules))
+            Ip(args.ip_name_snake, args.ip_name_long, ipgen_modules,
+               reggen_top_modules))
 
     # Default to generating all parts.
     if len(args.only) == 0:

@@ -130,7 +130,7 @@ For more information, consult the `:bitstream_bisect` tool directly!
 
 This section gives an overview of where bitstreams are generated, how they are uploaded to the GCP cache, and how Bazel reaches into the cache.
 
-OpenTitan runs CI tasks on Azure Pipelines that build FPGA bitstreams.
+OpenTitan runs CI tasks on GitHub Actions that build FPGA bitstreams.
 A full bitstream build can take hours, so we cache the output artifacts in a GCS bucket.
 These cached bitstreams can be downloaded and used as-is, or we can splice in freshly-compiled components, including the ROM and the OTP image.
 
@@ -143,8 +143,7 @@ The following files are produced as a result:
 * `fpga_cw310_rom.bit` (ROM, RMA OTP image)
 * `fpga_cw310_rom_otp_dev.bit` (ROM, DEV OTP image)
 * `lowrisc_systems_chip_earlgrey_cw310_0.1.bit` (test ROM, RMA OTP image)
-* `otp.mmi`
-* `rom.mmi`
+* `memories.mmi`
 
 If CI is working on the `master` branch, it puts selected build artifacts into a tarball, which it then uploads to the GCS bucket. The latest tarball is available here: https://storage.googleapis.com/opentitan-bitstreams/master/bitstream-latest.tar.gz
 

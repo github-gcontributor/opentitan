@@ -97,6 +97,16 @@
       tests: ["{name}_lc_escalation"]
     }
     {
+      name: sec_cm_prim_ram_ctrl_mubi
+      desc: '''Verify the countermeasure(s) PRIM_RAM.CTRL.MUBI.
+
+            Injects bit-flips into multibit encoded control signals inside the
+            prim_ram modules.
+            '''
+      stage: V2S
+      tests: ["{name}_mubi_enc_err"]
+    }
+    {
       name: sec_cm_mem_integrity
       desc: "Verify the countermeasure(s) MEM.INTEGRITY."
       stage: V2S
@@ -106,10 +116,11 @@
       name: sec_cm_mem_readback
       desc: '''Verify the countermeasure(s) MEM.READBACK.
 
-        Test needs to be implemented, see lowRISC/opentitan#23322.
+            Injects bit-flips during memory reads/writes and checks whether
+            an error is triggered.
       '''
       stage: V2S
-      tests: ["{name}_smoke"]
+      tests: ["{name}_readback_err"]
     }
     {
       name: sec_cm_mem_scramble

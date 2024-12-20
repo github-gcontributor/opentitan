@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("//rules:const.bzl", "CONST", "hex_digits")
-load("//rules:opentitan.bzl", "SILICON_CREATOR_KEYS")
+load("//rules/opentitan:keyutils.bzl", "SILICON_CREATOR_KEYS")
 
 MSG_TEMPLATE_BFV = "{}{}\r\n(?s:.*){}{}\r\n".format(
     CONST.SHUTDOWN.PREFIX.BFV,
@@ -34,7 +34,8 @@ MSG_TEMPLATE_BFV_LCV = "{}{}\r\n{}{}\r\n(?s:.*){}{}\r\n{}{}\r\n".format(
     "{1}",
 )
 
-MSG_STARTING_ROM_EXT = "Starting ROM_EXT"
+# When starting ROM_EXT, immutable section will always run first.
+MSG_STARTING_ROM_EXT = "\nIMM_ROM_EXT:"
 
 MSG_PASS = "PASS!"
 

@@ -19,6 +19,7 @@ args=(
     -name .git -prune -o
     -name vendor -prune -o
     -name scratch -prune -o
+    -name build-site -prune -o
     # Filter to executable files.
     -type f
     -executable
@@ -36,7 +37,7 @@ bad_files=$(find . "${args[@]}" -print)
 
 # Fail if any exist.
 if [ -n "$bad_files" ]; then
-    echo -n "##vso[task.logissue type=error]"
+    echo -n "::error::"
     echo "The following files should not have their executable bit set:" >&2
     echo "$bad_files" >&2
     exit 1

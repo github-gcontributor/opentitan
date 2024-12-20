@@ -65,13 +65,20 @@ def cleanup_format(_format):
     so they're converted to pointers instead.
     - Change %![N]?s        --> %[N]?s[%d].
     - Change %![N]?[xXyY]   --> %[N]?h.
-    - Change %![N]?b        --> %[N]?d.'''
+    - Change %![N]?b        --> %[N]?d.
+
+    Status values are printed as hexadecimal values which can be manually decoded
+    by users as necessary, to prevent errors occuring in tests due to lacking
+    support for this formatting specifier. JSON support for status printing is
+    likewise just replaced by displaying the hex.
+    - Change %!?[N]?r        --> %8h'''
     _format = re.sub(r"%(-?\d*)[iu]", r"%\1d", _format)
     _format = re.sub(r"%(-?\d*)[xp]", r"%\1h", _format)
     _format = re.sub(r"%(-?\d*)X", r"%\1H", _format)
     _format = re.sub(r"%!(-?\d*)s", r"%\1s[%d]", _format)
     _format = re.sub(r"%!(-?\d*)[xXyY]", r"%\1h[%d]", _format)
     _format = re.sub(r"%!(-?\d*)b", r"%\1d[%d]", _format)
+    _format = re.sub(r"%!?(-?\d*)r", r"%8h", _format)
     _format = re.sub(r"%([bcodhHs])", r"%0\1", _format)
     return cleanup_newlines(_format)
 
@@ -206,7 +213,6 @@ def extract_sw_logs(elf_file, logs_fields_section):
         # Parse the logs fields section to extract the logs.
         section = elf.get_section_by_name(name=logs_fields_section)
         if section:
-            logs_base_addr = int(section.header['sh_addr'])
             logs_size = int(section.header['sh_size'])
             logs_data = section.data()
         else:
@@ -214,15 +220,18 @@ def extract_sw_logs(elf_file, logs_fields_section):
                 logs_fields_section, elf_file))
             sys.exit(1)
 
+        header_size = 4
+        logs_offset, = struct.unpack('I', logs_data[0:header_size])
+
         # Dump the logs with fields.
         result = ""
-        num_logs = logs_size // LOGS_FIELDS_SIZE
+        num_logs = (logs_size - header_size) // LOGS_FIELDS_SIZE
         for i in range(num_logs):
-            start = i * LOGS_FIELDS_SIZE
+            start = header_size + i * LOGS_FIELDS_SIZE
             end = start + LOGS_FIELDS_SIZE
             severity, file_addr, line, nargs, format_addr = struct.unpack(
                 'IIIII', logs_data[start:end])
-            result += "addr: {}\n".format(hex(logs_base_addr + start)[2:])
+            result += "addr: {}\n".format(hex(logs_offset + start)[2:])
             result += "severity: {}\n".format(severity)
             result += "file: {}\n".format(
                 prune_filename(get_str_at_addr(file_addr, addr_strings)))

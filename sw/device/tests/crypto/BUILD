@@ -36,6 +36,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         ":aes_testvectors",
@@ -125,6 +128,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         ":aes_gcm_testutils",
@@ -218,6 +224,9 @@ opentitan_test(
     exec_env = EARLGREY_TEST_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:otbn",
@@ -234,6 +243,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:entropy",
@@ -253,6 +265,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:entropy",
@@ -309,6 +324,9 @@ opentitan_test(
     ),
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:otbn",
@@ -328,6 +346,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:entropy",
@@ -348,6 +369,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:entropy",
@@ -416,6 +440,9 @@ opentitan_test(
     exec_env = EARLGREY_TEST_ENVS,
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/drivers:entropy",
@@ -431,6 +458,9 @@ opentitan_test(
     exec_env = EARLGREY_TEST_ENVS,
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         ":kdf_testvectors_random_header",
@@ -467,6 +497,9 @@ opentitan_test(
     exec_env = EARLGREY_TEST_ENVS,
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         ":hmac_testvectors_random_header",
@@ -546,7 +579,7 @@ opentitan_test(
         ":ecdsa_p256_verify_testvectors_hardcoded_header",
         "//sw/device/lib/crypto/drivers:otbn",
         "//sw/device/lib/crypto/impl:hash",
-        "//sw/device/lib/crypto/impl/ecc:ecdsa_p256",
+        "//sw/device/lib/crypto/impl/ecc:p256",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing/test_framework:ottf_main",
     ],
@@ -558,6 +591,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/impl:hash",
@@ -574,6 +610,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/impl:hash",
@@ -590,6 +629,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/impl:hash",
@@ -606,6 +648,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/impl:hash",
@@ -627,6 +672,9 @@ opentitan_test(
     ),
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/impl:hash",
@@ -645,6 +693,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         "//sw/device/lib/crypto/impl:hash",
@@ -754,12 +805,11 @@ autogen_cryptotest_header(
 opentitan_test(
     name = "rsa_3072_verify_functest_wycheproof",
     srcs = ["rsa_3072_verify_functest.c"],
-    # The test vectors don't fit in the flash allocated for ROM_EXT stage, so
-    # we have to restrict the environments to run with the test_rom.
     exec_env = dicts.add(
         EARLGREY_SILICON_OWNER_ROM_EXT_ENVS,
         {
             "//hw/top_earlgrey:fpga_cw310_test_rom": None,
+            "//hw/top_earlgrey:fpga_cw340_sival_rom_ext": None,
             "//hw/top_earlgrey:sim_verilator": None,
         },
     ),
@@ -768,6 +818,9 @@ opentitan_test(
     ),
     verilator = verilator_params(
         timeout = "eternal",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         ":rsa_3072_verify_testvectors_wycheproof_header",
@@ -793,6 +846,9 @@ opentitan_test(
     exec_env = CRYPTOTEST_EXEC_ENVS,
     verilator = verilator_params(
         timeout = "long",
+        # This test can take > 60 minutes, so mark it manual as it shouldn't
+        # run in CI/nightlies.
+        tags = ["manual"],
     ),
     deps = [
         ":rsa_3072_verify_testvectors_hardcoded_header",
@@ -986,6 +1042,7 @@ opentitan_test(
         EARLGREY_SILICON_OWNER_ROM_EXT_ENVS,
         {
             "//hw/top_earlgrey:fpga_cw310_rom_ext": None,
+            "//hw/top_earlgrey:fpga_cw340_sival_rom_ext": None,
         },
     ),
     deps = [
@@ -1004,6 +1061,7 @@ opentitan_test(
         EARLGREY_SILICON_OWNER_ROM_EXT_ENVS,
         {
             "//hw/top_earlgrey:fpga_cw310_rom_ext": None,
+            "//hw/top_earlgrey:fpga_cw340_sival_rom_ext": None,
         },
     ),
     deps = [

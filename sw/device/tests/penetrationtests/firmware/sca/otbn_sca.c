@@ -19,7 +19,6 @@
 #include "sw/device/lib/testing/test_framework/ujson_ottf.h"
 #include "sw/device/lib/ujson/ujson.h"
 #include "sw/device/sca/lib/prng.h"
-#include "sw/device/sca/lib/sca.h"
 #include "sw/device/tests/penetrationtests/firmware/lib/pentest_lib.h"
 #include "sw/device/tests/penetrationtests/json/otbn_sca_commands.h"
 
@@ -62,6 +61,21 @@ static const otbn_addr_t kOtbnAppKeySideloadkl =
 static const otbn_addr_t kOtbnAppKeySideloadkh =
     OTBN_ADDR_T_INIT(otbn_key_sideload_sca, k_h);
 
+// RSA OTBN App.
+OTBN_DECLARE_APP_SYMBOLS(rsa);
+OTBN_DECLARE_SYMBOL_ADDR(rsa, mode);
+OTBN_DECLARE_SYMBOL_ADDR(rsa, n_limbs);
+OTBN_DECLARE_SYMBOL_ADDR(rsa, inout);
+OTBN_DECLARE_SYMBOL_ADDR(rsa, modulus);
+OTBN_DECLARE_SYMBOL_ADDR(rsa, exp);
+
+static const otbn_app_t kOtbnAppRsa = OTBN_APP_T_INIT(rsa);
+static const otbn_addr_t kOtbnVarRsaMode = OTBN_ADDR_T_INIT(rsa, mode);
+static const otbn_addr_t kOtbnVarRsaNLimbs = OTBN_ADDR_T_INIT(rsa, n_limbs);
+static const otbn_addr_t kOtbnVarRsaInOut = OTBN_ADDR_T_INIT(rsa, inout);
+static const otbn_addr_t kOtbnVarRsaModulus = OTBN_ADDR_T_INIT(rsa, modulus);
+static const otbn_addr_t kOtbnVarRsaExp = OTBN_ADDR_T_INIT(rsa, exp);
+
 /**
  * Clears the OTBN DMEM and IMEM.
  *
@@ -75,15 +89,16 @@ static status_t clear_otbn(void) {
   return OK_STATUS();
 }
 
-status_t handle_otbn_sca_init(ujson_t *uj) {
+status_t handle_otbn_pentest_init(ujson_t *uj) {
   // Configure the entropy complex for OTBN. Set the reseed interval to max
   // to avoid a non-constant trigger window.
   TRY(pentest_configure_entropy_source_max_reseed_interval());
 
-  sca_init(kScaTriggerSourceOtbn, kScaPeripheralEntropy | kScaPeripheralIoDiv4 |
-                                      kScaPeripheralOtbn | kScaPeripheralCsrng |
-                                      kScaPeripheralEdn | kScaPeripheralHmac |
-                                      kScaPeripheralKmac);
+  pentest_init(kPentestTriggerSourceOtbn,
+               kPentestPeripheralEntropy | kPentestPeripheralIoDiv4 |
+                   kPentestPeripheralOtbn | kPentestPeripheralCsrng |
+                   kPentestPeripheralEdn | kPentestPeripheralHmac |
+                   kPentestPeripheralKmac);
 
   // Init the OTBN core.
   TRY(dif_otbn_init(mmio_region_from_addr(TOP_EARLGREY_OTBN_BASE_ADDR), &otbn));
@@ -105,7 +120,7 @@ status_t handle_otbn_sca_init(ujson_t *uj) {
   return OK_STATUS();
 }
 
-status_t handle_otbn_sca_init_keymgr(ujson_t *uj) {
+status_t handle_otbn_pentest_init_keymgr(ujson_t *uj) {
   if (kBootStage != kBootStageOwner) {
     TRY(keymgr_testutils_startup(&keymgr, &kmac));
     // Advance to OwnerIntermediateKey state.
@@ -159,12 +174,12 @@ status_t handle_otbn_sca_key_sideload_fvsr(ujson_t *uj) {
 
     TRY(dif_otbn_set_ctrl_software_errs_fatal(&otbn, /*enable=*/false));
 
-    sca_set_trigger_high();
+    pentest_set_trigger_high();
     // Give the trigger time to rise.
     asm volatile(NOP30);
     otbn_execute();
     otbn_busy_wait_for_done();
-    sca_set_trigger_low();
+    pentest_set_trigger_low();
     asm volatile(NOP30);
 
     otbn_dmem_read(1, kOtbnAppKeySideloadks0l, &key_share_0_l[it]);
@@ -190,6 +205,43 @@ status_t handle_otbn_sca_key_sideload_fvsr(ujson_t *uj) {
   return OK_STATUS();
 }
 
+status_t handle_otbn_sca_rsa512_decrypt(ujson_t *uj) {
+  // Get RSA256 parameters.
+  penetrationtest_otbn_sca_rsa512_dec_t uj_data;
+  TRY(ujson_deserialize_penetrationtest_otbn_sca_rsa512_dec_t(uj, &uj_data));
+
+  otbn_load_app(kOtbnAppRsa);
+
+  uint32_t mode = 2;  // Decrypt.
+  // RSA512 configuration.
+  uint32_t n_limbs = 2;
+
+  // Write data into OTBN DMEM.
+  TRY(dif_otbn_dmem_write(&otbn, kOtbnVarRsaMode, &mode, sizeof(mode)));
+  TRY(dif_otbn_dmem_write(&otbn, kOtbnVarRsaNLimbs, &n_limbs, sizeof(n_limbs)));
+  TRY(dif_otbn_dmem_write(&otbn, kOtbnVarRsaModulus, uj_data.mod,
+                          sizeof(uj_data.mod)));
+  TRY(dif_otbn_dmem_write(&otbn, kOtbnVarRsaExp, uj_data.exp,
+                          sizeof(uj_data.exp)));
+  TRY(dif_otbn_dmem_write(&otbn, kOtbnVarRsaInOut, uj_data.msg,
+                          sizeof(uj_data.msg)));
+
+  pentest_set_trigger_high();
+  // Give the trigger time to rise.
+  asm volatile(NOP30);
+  otbn_execute();
+  otbn_busy_wait_for_done();
+  pentest_set_trigger_low();
+
+  // Send back decryption result to host.
+  penetrationtest_otbn_sca_rsa512_dec_out_t uj_output;
+  TRY(dif_otbn_dmem_read(&otbn, kOtbnVarRsaInOut, uj_output.out,
+                         sizeof(uj_output.out)));
+  RESP_OK(ujson_serialize_penetrationtest_otbn_sca_rsa512_dec_out_t, uj,
+          &uj_output);
+  return OK_STATUS();
+}
+
 status_t handle_otbn_sca(ujson_t *uj) {
   otbn_sca_subcommand_t cmd;
   TRY(ujson_deserialize_otbn_sca_subcommand_t(uj, &cmd));
@@ -205,11 +257,13 @@ status_t handle_otbn_sca(ujson_t *uj) {
     case kOtbnScaSubcommandEcc256SetSeed:
       return handle_otbn_sca_ecc256_set_seed(uj);
     case kOtbnScaSubcommandInit:
-      return handle_otbn_sca_init(uj);
+      return handle_otbn_pentest_init(uj);
     case kOtbnScaSubcommandInitKeyMgr:
-      return handle_otbn_sca_init_keymgr(uj);
+      return handle_otbn_pentest_init_keymgr(uj);
     case kOtbnScaSubcommandKeySideloadFvsr:
       return handle_otbn_sca_key_sideload_fvsr(uj);
+    case kOtbnScaSubcommandRsa512Decrypt:
+      return handle_otbn_sca_rsa512_decrypt(uj);
     default:
       LOG_ERROR("Unrecognized OTBN SCA subcommand: %d", cmd);
       return INVALID_ARGUMENT();

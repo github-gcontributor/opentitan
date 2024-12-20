@@ -62,8 +62,16 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
                                                              bit [63:0] wkup_thold,
                                                              bit [63:0] wkup_count);
 
-    wkup_count_cp: coverpoint wkup_count {option.auto_bin_max = 512;}
-    wkup_thold_cp: coverpoint wkup_thold {option.auto_bin_max = 512;}
+    wkup_count_cp: coverpoint wkup_count {
+      bins min_val    = {0};
+      bins middle_val = {[1:(2**64-2)]};
+      bins max_val    = {2**64-1};
+    }
+    wkup_thold_cp: coverpoint wkup_thold {
+      bins min_val    = {0};
+      bins middle_val = {[1:(2**64-2)]};
+      bins max_val    = {2**64-1};
+    }
     wkup_int_cp  : coverpoint wkup_int   {bins unset          = {0};
                                           bins set            = {1};
     }
@@ -77,8 +85,16 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
                                                                    bit [31:0] wdog_thold,
                                                                    bit [31:0] wdog_count);
 
-    wdog_count_cp:    coverpoint wdog_count {option.auto_bin_max = 256;}
-    wdog_thold_cp:    coverpoint wdog_thold {option.auto_bin_max = 256;}
+    wdog_count_cp:    coverpoint wdog_count {
+      bins min_val    = {0};
+      bins middle_val = {[1:(2**32-2)]};
+      bins max_val    = {2**32-1};
+    }
+    wdog_thold_cp:    coverpoint wdog_thold {
+      bins min_val    = {0};
+      bins middle_val = {[1:(2**32-2)]};
+      bins max_val    = {2**32-1};
+    }
     wdog_bite_rst_cp: coverpoint wdog_bite_rst   { bins unset    = {0};
                                                    bins set      = {1};
     }
@@ -92,22 +108,31 @@ class aon_timer_env_cov extends cip_base_env_cov #(.CFG_T(aon_timer_env_cfg));
                                                                    bit [31:0] wdog_thold,
                                                                    bit [31:0] wdog_count);
 
-    wdog_count_cp:    coverpoint wdog_count {option.auto_bin_max = 256;}
-    wdog_thold_cp:    coverpoint wdog_thold {option.auto_bin_max = 256;}
+    wdog_count_cp:    coverpoint wdog_count {
+      bins min_val    = {0};
+      bins middle_val = {[1:(2**32-2)]};
+      bins max_val    = {2**32-1};
+    }
+    wdog_thold_cp:    coverpoint wdog_thold {
+      bins min_val    = {0};
+      bins middle_val = {[1:(2**32-2)]};
+      bins max_val    = {2**32-1};
+    }
     wdog_bark_int_cp: coverpoint wdog_bark_int   { bins unset          = {0};
                                                    bins set            = {1};
     }
     wdog_thold_cpXwdog_bark_rst:  cross wdog_thold_cp, wdog_bark_int;
   endgroup : watchdog_timer_bark_thold_hit_cg
 
+  extern function new(string name, uvm_component parent);
 
-  function new(string name, uvm_component parent);
-    super.new(name, parent);
-    // [instantiate covergroups here]
-    timer_cfg_cg = new(name);
-    wake_up_timer_thold_hit_cg = new();
-    watchdog_timer_bite_thold_hit_cg = new();
-    watchdog_timer_bark_thold_hit_cg = new();
-  endfunction : new
+endclass : aon_timer_env_cov
 
-endclass
+function aon_timer_env_cov::new(string name, uvm_component parent);
+  super.new(name, parent);
+  // [instantiate covergroups here]
+  timer_cfg_cg = new(name);
+  wake_up_timer_thold_hit_cg = new();
+  watchdog_timer_bite_thold_hit_cg = new();
+  watchdog_timer_bark_thold_hit_cg = new();
+endfunction : new
