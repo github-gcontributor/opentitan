@@ -63,6 +63,7 @@ top_optional = {
     'datawidth': ['pn', "default data width"],
     'exported_clks': ['g', 'clock signal routing rules'],
     'host': ['g', 'list of host-only components in the system'],
+    'incoming_interrupt': ['g', 'Parsed incoming interrupts (generated)'],
     'incoming_alert': ['g', 'Parsed incoming alerts (generated)'],
     'inter_module': ['g', 'define the signal connections between the modules'],
     'interrupt': ['lnw', 'interrupts (generated)'],
@@ -70,6 +71,7 @@ top_optional = {
     'num_cores': ['pn', "number of computing units"],
     'power': ['g', 'power domains supported by the design'],
     'port': ['g', 'assign special attributes to specific ports'],
+    'racl_config': ['s', 'Path to a RACL configuration HJSON file'],
     'rnd_cnst_seed': ['int', "Seed for random netlist constant computation"],
     'unmanaged_resets': ['l', 'List of unmanaged external resets']
 }
@@ -212,7 +214,8 @@ module_optional = {
     'generate_dif': ['pb', 'optional bool to indicate if a DIF should be generated for that '
                            'module'],
     'outgoing_alert': ['s', 'optional string to indicate alerts are routed externally to the named '
-                            'group']
+                            'group'],
+    'incoming_interrupt': ['g', 'Parsed incoming interrupts (generated)'],
 }
 
 module_added = {

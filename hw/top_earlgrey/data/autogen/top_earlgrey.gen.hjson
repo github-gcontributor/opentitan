@@ -989,7 +989,7 @@
       inter_signal_list:
       [
         {
-          name: ram_cfg
+          name: ram_cfg_sys2spi
           struct: ram_2p_cfg
           package: prim_ram_2p_pkg
           type: uni
@@ -998,6 +998,38 @@
           inst_name: spi_device
           default: ""
           top_signame: ast_spi_ram_2p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp_sys2spi
+          struct: ram_2p_cfg
+          package: prim_ram_2p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: spi_device
+          index: -1
+        }
+        {
+          name: ram_cfg_spi2sys
+          struct: ram_2p_cfg
+          package: prim_ram_2p_pkg
+          type: uni
+          act: rcv
+          width: 1
+          inst_name: spi_device
+          default: ""
+          top_signame: ast_spi_ram_2p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp_spi2sys
+          struct: ram_2p_cfg
+          package: prim_ram_2p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: spi_device
           index: -1
         }
         {
@@ -1116,6 +1148,16 @@
           index: -1
         }
         {
+          name: ram_cfg_rsp
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: i2c0
+          index: -1
+        }
+        {
           name: lsio_trigger
           desc:
             '''
@@ -1209,6 +1251,16 @@
           index: -1
         }
         {
+          name: ram_cfg_rsp
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: i2c1
+          index: -1
+        }
+        {
           name: lsio_trigger
           desc:
             '''
@@ -1299,6 +1351,16 @@
           inst_name: i2c2
           default: ""
           top_signame: ast_ram_1p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: i2c2
           index: -1
         }
         {
@@ -2181,6 +2243,17 @@
           inst_name: lc_ctrl
           top_signame: kmac_app
           index: 1
+        }
+        {
+          name: lc_raw_test_rma
+          struct: lc_tx
+          package: lc_ctrl_pkg
+          type: uni
+          act: req
+          width: 1
+          default: lc_ctrl_pkg::Off
+          inst_name: lc_ctrl
+          index: -1
         }
         {
           name: lc_dft_en
@@ -3094,6 +3167,16 @@
           inst_name: usbdev
           default: ""
           top_signame: ast_usb_ram_1p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: usbdev
           index: -1
         }
         {
@@ -5066,6 +5149,7 @@
       param_decl:
       {
         InstrExec: "0"
+        InstSize: "4096"
       }
       base_addrs:
       {
@@ -5145,6 +5229,24 @@
           default: 4096
         }
         {
+          name: InstSize
+          desc: Memory size of a single RAM tile (in bytes).
+          type: int
+          default: "4096"
+          local: "false"
+          expose: "true"
+          name_top: SramCtrlRetAonInstSize
+        }
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          type: int
+          default: 1
+          local: "false"
+          expose: "true"
+          name_top: SramCtrlRetAonNumRamInst
+        }
+        {
           name: InstrExec
           desc: Support execution from SRAM
           type: bit
@@ -5183,10 +5285,43 @@
           package: prim_ram_1p_pkg
           type: uni
           act: rcv
-          width: 1
+          width:
+          {
+            name: NumRamInst
+            desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+            param_type: int
+            unpacked_dimensions: null
+            default: 1
+            local: false
+            expose: true
+            name_top: SramCtrlRetAonNumRamInst
+          }
           default: "'0"
           inst_name: sram_ctrl_ret_aon
-          top_signame: ast_ram_1p_cfg
+          external: true
+          top_signame: sram_ctrl_ret_aon_cfg
+          conn_type: false
+          index: -1
+        }
+        {
+          name: cfg_rsp
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width:
+          {
+            name: NumRamInst
+            desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+            param_type: int
+            unpacked_dimensions: null
+            default: 1
+            local: false
+            expose: true
+            name_top: SramCtrlRetAonNumRamInst
+          }
+          default: "'0"
+          inst_name: sram_ctrl_ret_aon
           index: -1
         }
         {
@@ -6898,7 +7033,7 @@
           index: 3
         }
         {
-          name: ram_cfg
+          name: ram_cfg_imem
           struct: ram_1p_cfg
           package: prim_ram_1p_pkg
           type: uni
@@ -6907,6 +7042,38 @@
           inst_name: otbn
           default: ""
           top_signame: ast_ram_1p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_dmem
+          struct: ram_1p_cfg
+          package: prim_ram_1p_pkg
+          type: uni
+          act: rcv
+          width: 1
+          inst_name: otbn
+          default: ""
+          top_signame: ast_ram_1p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp_imem
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: otbn
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp_dmem
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width: 1
+          inst_name: otbn
           index: -1
         }
         {
@@ -7877,6 +8044,7 @@
       {
         InstrExec: "1"
         NumPrinceRoundsHalf: "2"
+        InstSize: "131072"
       }
       base_addrs:
       {
@@ -7960,6 +8128,24 @@
           default: 131072
         }
         {
+          name: InstSize
+          desc: Memory size of a single RAM tile (in bytes).
+          type: int
+          default: "131072"
+          local: "false"
+          expose: "true"
+          name_top: SramCtrlMainInstSize
+        }
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          type: int
+          default: 1
+          local: "false"
+          expose: "true"
+          name_top: SramCtrlMainNumRamInst
+        }
+        {
           name: InstrExec
           desc: Support execution from SRAM
           type: bit
@@ -7998,10 +8184,43 @@
           package: prim_ram_1p_pkg
           type: uni
           act: rcv
-          width: 1
+          width:
+          {
+            name: NumRamInst
+            desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+            param_type: int
+            unpacked_dimensions: null
+            default: 1
+            local: false
+            expose: true
+            name_top: SramCtrlMainNumRamInst
+          }
           default: "'0"
           inst_name: sram_ctrl_main
-          top_signame: ast_ram_1p_cfg
+          external: true
+          top_signame: sram_ctrl_main_cfg
+          conn_type: false
+          index: -1
+        }
+        {
+          name: cfg_rsp
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width:
+          {
+            name: NumRamInst
+            desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+            param_type: int
+            unpacked_dimensions: null
+            default: 1
+            local: false
+            expose: true
+            name_top: SramCtrlMainNumRamInst
+          }
+          default: "'0"
+          inst_name: sram_ctrl_main
           index: -1
         }
         {
@@ -8283,6 +8502,8 @@
         DbgTriggerEn: "1"
         DbgHwBreakNum: "4"
         SecureIbex: "1"
+        DmBaseAddr: tl_main_pkg::ADDR_SPACE_RV_DM__MEM
+        DmAddrMask: tl_main_pkg::ADDR_MASK_RV_DM__MEM
         DmHaltAddr: tl_main_pkg::ADDR_SPACE_RV_DM__MEM + dm::HaltAddress[31:0]
         DmExceptionAddr: tl_main_pkg::ADDR_SPACE_RV_DM__MEM + dm::ExceptionAddress[31:0]
         PipeLine: "0"
@@ -8556,6 +8777,15 @@
           name_top: RvCoreIbexICacheScramble
         }
         {
+          name: ICacheNWays
+          desc: Number of instruction cache ways
+          type: int unsigned
+          default: 2
+          local: "true"
+          expose: "true"
+          name_top: RvCoreIbexICacheNWays
+        }
+        {
           name: BranchPredictor
           desc: Branch predictor
           type: bit
@@ -8590,6 +8820,24 @@
           local: "false"
           expose: "true"
           name_top: RvCoreIbexSecureIbex
+        }
+        {
+          name: DmBaseAddr
+          desc: Base address of Debug Module
+          type: int unsigned
+          default: tl_main_pkg::ADDR_SPACE_RV_DM__MEM
+          local: "false"
+          expose: "true"
+          name_top: RvCoreIbexDmBaseAddr
+        }
+        {
+          name: DmAddrMask
+          desc: Adress mask of Debug Module
+          type: int unsigned
+          default: tl_main_pkg::ADDR_MASK_RV_DM__MEM
+          local: "false"
+          expose: "true"
+          name_top: RvCoreIbexDmAddrMask
         }
         {
           name: DmHaltAddr
@@ -8631,7 +8879,7 @@
           index: -1
         }
         {
-          name: ram_cfg
+          name: ram_cfg_icache_tag
           struct: ram_1p_cfg
           package: prim_ram_1p_pkg
           type: uni
@@ -8640,6 +8888,58 @@
           inst_name: rv_core_ibex
           default: ""
           top_signame: ast_ram_1p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp_icache_tag
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width:
+          {
+            name: ICacheNWays
+            desc: Number of instruction cache ways
+            param_type: int unsigned
+            unpacked_dimensions: null
+            default: 2
+            local: true
+            expose: true
+            name_top: RvCoreIbexICacheNWays
+          }
+          inst_name: rv_core_ibex
+          index: -1
+        }
+        {
+          name: ram_cfg_icache_data
+          struct: ram_1p_cfg
+          package: prim_ram_1p_pkg
+          type: uni
+          act: rcv
+          width: 1
+          inst_name: rv_core_ibex
+          default: ""
+          top_signame: ast_ram_1p_cfg
+          index: -1
+        }
+        {
+          name: ram_cfg_rsp_icache_data
+          struct: ram_1p_cfg_rsp
+          package: prim_ram_1p_pkg
+          type: uni
+          act: req
+          width:
+          {
+            name: ICacheNWays
+            desc: Number of instruction cache ways
+            param_type: int unsigned
+            unpacked_dimensions: null
+            default: 2
+            local: true
+            expose: true
+            name_top: RvCoreIbexICacheNWays
+          }
+          inst_name: rv_core_ibex
           index: -1
         }
         {
@@ -9017,17 +9317,18 @@
       ]
       ast.ram_1p_cfg:
       [
-        otbn.ram_cfg
+        otbn.ram_cfg_imem
+        otbn.ram_cfg_dmem
         i2c0.ram_cfg
         i2c1.ram_cfg
         i2c2.ram_cfg
-        sram_ctrl_main.cfg
-        sram_ctrl_ret_aon.cfg
-        rv_core_ibex.ram_cfg
+        rv_core_ibex.ram_cfg_icache_tag
+        rv_core_ibex.ram_cfg_icache_data
       ]
       ast.spi_ram_2p_cfg:
       [
-        spi_device.ram_cfg
+        spi_device.ram_cfg_sys2spi
+        spi_device.ram_cfg_spi2sys
       ]
       ast.usb_ram_1p_cfg:
       [
@@ -9617,6 +9918,8 @@
       ast.lc_dft_en: ""
       ast.obs_ctrl: obs_ctrl
       ast.ram_1p_cfg: ram_1p_cfg
+      sram_ctrl_main.cfg: sram_ctrl_main_cfg
+      sram_ctrl_ret_aon.cfg: sram_ctrl_ret_aon_cfg
       ast.spi_ram_2p_cfg: spi_ram_2p_cfg
       ast.usb_ram_1p_cfg: usb_ram_1p_cfg
       ast.rom_cfg: rom_cfg
@@ -14310,6 +14613,7 @@
     }
   ]
   incoming_alert: {}
+  incoming_interrupt: {}
   exported_clks: {}
   wakeups:
   [
@@ -14425,6 +14729,7 @@
       module_name: uart0
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart0_rx_watermark
@@ -14433,6 +14738,7 @@
       module_name: uart0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: uart0_tx_done
@@ -14441,6 +14747,7 @@
       module_name: uart0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart0_rx_overflow
@@ -14449,6 +14756,7 @@
       module_name: uart0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart0_rx_frame_err
@@ -14457,6 +14765,7 @@
       module_name: uart0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart0_rx_break_err
@@ -14465,6 +14774,7 @@
       module_name: uart0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart0_rx_timeout
@@ -14473,6 +14783,7 @@
       module_name: uart0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart0_rx_parity_err
@@ -14481,6 +14792,7 @@
       module_name: uart0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart0_tx_empty
@@ -14489,6 +14801,7 @@
       module_name: uart0
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart1_tx_watermark
@@ -14497,6 +14810,7 @@
       module_name: uart1
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart1_rx_watermark
@@ -14505,6 +14819,7 @@
       module_name: uart1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: uart1_tx_done
@@ -14513,6 +14828,7 @@
       module_name: uart1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart1_rx_overflow
@@ -14521,6 +14837,7 @@
       module_name: uart1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart1_rx_frame_err
@@ -14529,6 +14846,7 @@
       module_name: uart1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart1_rx_break_err
@@ -14537,6 +14855,7 @@
       module_name: uart1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart1_rx_timeout
@@ -14545,6 +14864,7 @@
       module_name: uart1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart1_rx_parity_err
@@ -14553,6 +14873,7 @@
       module_name: uart1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart1_tx_empty
@@ -14561,6 +14882,7 @@
       module_name: uart1
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart2_tx_watermark
@@ -14569,6 +14891,7 @@
       module_name: uart2
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart2_rx_watermark
@@ -14577,6 +14900,7 @@
       module_name: uart2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: uart2_tx_done
@@ -14585,6 +14909,7 @@
       module_name: uart2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart2_rx_overflow
@@ -14593,6 +14918,7 @@
       module_name: uart2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart2_rx_frame_err
@@ -14601,6 +14927,7 @@
       module_name: uart2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart2_rx_break_err
@@ -14609,6 +14936,7 @@
       module_name: uart2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart2_rx_timeout
@@ -14617,6 +14945,7 @@
       module_name: uart2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart2_rx_parity_err
@@ -14625,6 +14954,7 @@
       module_name: uart2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart2_tx_empty
@@ -14633,6 +14963,7 @@
       module_name: uart2
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart3_tx_watermark
@@ -14641,6 +14972,7 @@
       module_name: uart3
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: uart3_rx_watermark
@@ -14649,6 +14981,7 @@
       module_name: uart3
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: uart3_tx_done
@@ -14657,6 +14990,7 @@
       module_name: uart3
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart3_rx_overflow
@@ -14665,6 +14999,7 @@
       module_name: uart3
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart3_rx_frame_err
@@ -14673,6 +15008,7 @@
       module_name: uart3
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart3_rx_break_err
@@ -14681,6 +15017,7 @@
       module_name: uart3
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart3_rx_timeout
@@ -14689,6 +15026,7 @@
       module_name: uart3
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart3_rx_parity_err
@@ -14697,6 +15035,7 @@
       module_name: uart3
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: uart3_tx_empty
@@ -14705,6 +15044,7 @@
       module_name: uart3
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: gpio_gpio
@@ -14713,6 +15053,7 @@
       module_name: gpio
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_upload_cmdfifo_not_empty
@@ -14721,6 +15062,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_upload_payload_not_empty
@@ -14729,6 +15071,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_upload_payload_overflow
@@ -14737,6 +15080,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_readbuf_watermark
@@ -14745,6 +15089,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_readbuf_flip
@@ -14753,6 +15098,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_tpm_header_not_empty
@@ -14761,6 +15107,7 @@
       module_name: spi_device
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_tpm_rdfifo_cmd_end
@@ -14769,6 +15116,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_device_tpm_rdfifo_drop
@@ -14777,6 +15125,7 @@
       module_name: spi_device
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_fmt_threshold
@@ -14785,6 +15134,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_rx_threshold
@@ -14793,6 +15143,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_acq_threshold
@@ -14801,6 +15152,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_rx_overflow
@@ -14809,6 +15161,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_controller_halt
@@ -14817,6 +15170,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_scl_interference
@@ -14825,6 +15179,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_sda_interference
@@ -14833,6 +15188,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_stretch_timeout
@@ -14841,6 +15197,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_sda_unstable
@@ -14849,6 +15206,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_cmd_complete
@@ -14857,6 +15215,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_tx_stretch
@@ -14865,6 +15224,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_tx_threshold
@@ -14873,6 +15233,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_acq_stretch
@@ -14881,6 +15242,7 @@
       module_name: i2c0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_unexp_stop
@@ -14889,6 +15251,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c0_host_timeout
@@ -14897,6 +15260,7 @@
       module_name: i2c0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_fmt_threshold
@@ -14905,6 +15269,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_rx_threshold
@@ -14913,6 +15278,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_acq_threshold
@@ -14921,6 +15287,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_rx_overflow
@@ -14929,6 +15296,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_controller_halt
@@ -14937,6 +15305,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_scl_interference
@@ -14945,6 +15314,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_sda_interference
@@ -14953,6 +15323,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_stretch_timeout
@@ -14961,6 +15332,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_sda_unstable
@@ -14969,6 +15341,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_cmd_complete
@@ -14977,6 +15350,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_tx_stretch
@@ -14985,6 +15359,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_tx_threshold
@@ -14993,6 +15368,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_acq_stretch
@@ -15001,6 +15377,7 @@
       module_name: i2c1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_unexp_stop
@@ -15009,6 +15386,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c1_host_timeout
@@ -15017,6 +15395,7 @@
       module_name: i2c1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_fmt_threshold
@@ -15025,6 +15404,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_rx_threshold
@@ -15033,6 +15413,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_acq_threshold
@@ -15041,6 +15422,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_rx_overflow
@@ -15049,6 +15431,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_controller_halt
@@ -15057,6 +15440,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_scl_interference
@@ -15065,6 +15449,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_sda_interference
@@ -15073,6 +15458,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_stretch_timeout
@@ -15081,6 +15467,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_sda_unstable
@@ -15089,6 +15476,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_cmd_complete
@@ -15097,6 +15485,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_tx_stretch
@@ -15105,6 +15494,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_tx_threshold
@@ -15113,6 +15503,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_acq_stretch
@@ -15121,6 +15512,7 @@
       module_name: i2c2
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_unexp_stop
@@ -15129,6 +15521,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: i2c2_host_timeout
@@ -15137,6 +15530,7 @@
       module_name: i2c2
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: pattgen_done_ch0
@@ -15145,6 +15539,7 @@
       module_name: pattgen
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: pattgen_done_ch1
@@ -15153,6 +15548,7 @@
       module_name: pattgen
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: rv_timer_timer_expired_hart0_timer0
@@ -15161,6 +15557,7 @@
       module_name: rv_timer
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: otp_ctrl_otp_operation_done
@@ -15169,6 +15566,7 @@
       module_name: otp_ctrl
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: otp_ctrl_otp_error
@@ -15177,6 +15575,7 @@
       module_name: otp_ctrl
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: alert_handler_classa
@@ -15185,6 +15584,7 @@
       module_name: alert_handler
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: alert_handler_classb
@@ -15193,6 +15593,7 @@
       module_name: alert_handler
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: alert_handler_classc
@@ -15201,6 +15602,7 @@
       module_name: alert_handler
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: alert_handler_classd
@@ -15209,6 +15611,7 @@
       module_name: alert_handler
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_host0_error
@@ -15217,6 +15620,7 @@
       module_name: spi_host0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_host0_spi_event
@@ -15225,6 +15629,7 @@
       module_name: spi_host0
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: spi_host1_error
@@ -15233,6 +15638,7 @@
       module_name: spi_host1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: spi_host1_spi_event
@@ -15241,6 +15647,7 @@
       module_name: spi_host1
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_pkt_received
@@ -15249,6 +15656,7 @@
       module_name: usbdev
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_pkt_sent
@@ -15257,6 +15665,7 @@
       module_name: usbdev
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_disconnected
@@ -15265,6 +15674,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_host_lost
@@ -15273,6 +15683,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_link_reset
@@ -15281,6 +15692,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_link_suspend
@@ -15289,6 +15701,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_link_resume
@@ -15297,6 +15710,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_av_out_empty
@@ -15305,6 +15719,7 @@
       module_name: usbdev
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_rx_full
@@ -15313,6 +15728,7 @@
       module_name: usbdev
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_av_overflow
@@ -15321,6 +15737,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_link_in_err
@@ -15329,6 +15746,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_rx_crc_err
@@ -15337,6 +15755,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_rx_pid_err
@@ -15345,6 +15764,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_rx_bitstuff_err
@@ -15353,6 +15773,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_frame
@@ -15361,6 +15782,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_powered
@@ -15369,6 +15791,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_link_out_err
@@ -15377,6 +15800,7 @@
       module_name: usbdev
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: usbdev_av_setup_empty
@@ -15385,6 +15809,7 @@
       module_name: usbdev
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: pwrmgr_aon_wakeup
@@ -15393,6 +15818,7 @@
       module_name: pwrmgr_aon
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: sysrst_ctrl_aon_event_detected
@@ -15401,6 +15827,7 @@
       module_name: sysrst_ctrl_aon
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: adc_ctrl_aon_match_pending
@@ -15409,6 +15836,7 @@
       module_name: adc_ctrl_aon
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: aon_timer_aon_wkup_timer_expired
@@ -15417,6 +15845,7 @@
       module_name: aon_timer_aon
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: aon_timer_aon_wdog_timer_bark
@@ -15425,6 +15854,7 @@
       module_name: aon_timer_aon
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: sensor_ctrl_aon_io_status_change
@@ -15433,6 +15863,7 @@
       module_name: sensor_ctrl_aon
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: sensor_ctrl_aon_init_status_change
@@ -15441,6 +15872,7 @@
       module_name: sensor_ctrl_aon
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: flash_ctrl_prog_empty
@@ -15449,6 +15881,7 @@
       module_name: flash_ctrl
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: flash_ctrl_prog_lvl
@@ -15457,6 +15890,7 @@
       module_name: flash_ctrl
       intr_type: IntrType.Status
       default_val: true
+      incoming: false
     }
     {
       name: flash_ctrl_rd_full
@@ -15465,6 +15899,7 @@
       module_name: flash_ctrl
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: flash_ctrl_rd_lvl
@@ -15473,6 +15908,7 @@
       module_name: flash_ctrl
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: flash_ctrl_op_done
@@ -15481,6 +15917,7 @@
       module_name: flash_ctrl
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: flash_ctrl_corr_err
@@ -15489,6 +15926,7 @@
       module_name: flash_ctrl
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: hmac_hmac_done
@@ -15497,6 +15935,7 @@
       module_name: hmac
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: hmac_fifo_empty
@@ -15505,6 +15944,7 @@
       module_name: hmac
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: hmac_hmac_err
@@ -15513,6 +15953,7 @@
       module_name: hmac
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: kmac_kmac_done
@@ -15521,6 +15962,7 @@
       module_name: kmac
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: kmac_fifo_empty
@@ -15529,6 +15971,7 @@
       module_name: kmac
       intr_type: IntrType.Status
       default_val: false
+      incoming: false
     }
     {
       name: kmac_kmac_err
@@ -15537,6 +15980,7 @@
       module_name: kmac
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: otbn_done
@@ -15545,6 +15989,7 @@
       module_name: otbn
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: keymgr_op_done
@@ -15553,6 +15998,7 @@
       module_name: keymgr
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: csrng_cs_cmd_req_done
@@ -15561,6 +16007,7 @@
       module_name: csrng
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: csrng_cs_entropy_req
@@ -15569,6 +16016,7 @@
       module_name: csrng
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: csrng_cs_hw_inst_exc
@@ -15577,6 +16025,7 @@
       module_name: csrng
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: csrng_cs_fatal_err
@@ -15585,6 +16034,7 @@
       module_name: csrng
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: entropy_src_es_entropy_valid
@@ -15593,6 +16043,7 @@
       module_name: entropy_src
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: entropy_src_es_health_test_failed
@@ -15601,6 +16052,7 @@
       module_name: entropy_src
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: entropy_src_es_observe_fifo_ready
@@ -15609,6 +16061,7 @@
       module_name: entropy_src
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: entropy_src_es_fatal_err
@@ -15617,6 +16070,7 @@
       module_name: entropy_src
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: edn0_edn_cmd_req_done
@@ -15625,6 +16079,7 @@
       module_name: edn0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: edn0_edn_fatal_err
@@ -15633,6 +16088,7 @@
       module_name: edn0
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: edn1_edn_cmd_req_done
@@ -15641,6 +16097,7 @@
       module_name: edn1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
     {
       name: edn1_edn_fatal_err
@@ -15649,6 +16106,7 @@
       module_name: edn1
       intr_type: IntrType.Event
       default_val: false
+      incoming: false
     }
   ]
   alert_module:
@@ -17050,7 +17508,7 @@
         index: -1
       }
       {
-        name: ram_cfg
+        name: ram_cfg_sys2spi
         struct: ram_2p_cfg
         package: prim_ram_2p_pkg
         type: uni
@@ -17059,6 +17517,38 @@
         inst_name: spi_device
         default: ""
         top_signame: ast_spi_ram_2p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp_sys2spi
+        struct: ram_2p_cfg
+        package: prim_ram_2p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: spi_device
+        index: -1
+      }
+      {
+        name: ram_cfg_spi2sys
+        struct: ram_2p_cfg
+        package: prim_ram_2p_pkg
+        type: uni
+        act: rcv
+        width: 1
+        inst_name: spi_device
+        default: ""
+        top_signame: ast_spi_ram_2p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp_spi2sys
+        struct: ram_2p_cfg
+        package: prim_ram_2p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: spi_device
         index: -1
       }
       {
@@ -17123,6 +17613,16 @@
         index: -1
       }
       {
+        name: ram_cfg_rsp
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: i2c0
+        index: -1
+      }
+      {
         name: lsio_trigger
         desc:
           '''
@@ -17162,6 +17662,16 @@
         index: -1
       }
       {
+        name: ram_cfg_rsp
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: i2c1
+        index: -1
+      }
+      {
         name: lsio_trigger
         desc:
           '''
@@ -17198,6 +17708,16 @@
         inst_name: i2c2
         default: ""
         top_signame: ast_ram_1p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: i2c2
         index: -1
       }
       {
@@ -17714,6 +18234,17 @@
         inst_name: lc_ctrl
         top_signame: kmac_app
         index: 1
+      }
+      {
+        name: lc_raw_test_rma
+        struct: lc_tx
+        package: lc_ctrl_pkg
+        type: uni
+        act: req
+        width: 1
+        default: lc_ctrl_pkg::Off
+        inst_name: lc_ctrl
+        index: -1
       }
       {
         name: lc_dft_en
@@ -18420,6 +18951,16 @@
         inst_name: usbdev
         default: ""
         top_signame: ast_usb_ram_1p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: usbdev
         index: -1
       }
       {
@@ -19682,10 +20223,43 @@
         package: prim_ram_1p_pkg
         type: uni
         act: rcv
-        width: 1
+        width:
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          param_type: int
+          unpacked_dimensions: null
+          default: 1
+          local: false
+          expose: true
+          name_top: SramCtrlRetAonNumRamInst
+        }
         default: "'0"
         inst_name: sram_ctrl_ret_aon
-        top_signame: ast_ram_1p_cfg
+        external: true
+        top_signame: sram_ctrl_ret_aon_cfg
+        conn_type: false
+        index: -1
+      }
+      {
+        name: cfg_rsp
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width:
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          param_type: int
+          unpacked_dimensions: null
+          default: 1
+          local: false
+          expose: true
+          name_top: SramCtrlRetAonNumRamInst
+        }
+        default: "'0"
+        inst_name: sram_ctrl_ret_aon
         index: -1
       }
       {
@@ -20592,7 +21166,7 @@
         index: 3
       }
       {
-        name: ram_cfg
+        name: ram_cfg_imem
         struct: ram_1p_cfg
         package: prim_ram_1p_pkg
         type: uni
@@ -20601,6 +21175,38 @@
         inst_name: otbn
         default: ""
         top_signame: ast_ram_1p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_dmem
+        struct: ram_1p_cfg
+        package: prim_ram_1p_pkg
+        type: uni
+        act: rcv
+        width: 1
+        inst_name: otbn
+        default: ""
+        top_signame: ast_ram_1p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp_imem
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: otbn
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp_dmem
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width: 1
+        inst_name: otbn
         index: -1
       }
       {
@@ -21127,10 +21733,43 @@
         package: prim_ram_1p_pkg
         type: uni
         act: rcv
-        width: 1
+        width:
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          param_type: int
+          unpacked_dimensions: null
+          default: 1
+          local: false
+          expose: true
+          name_top: SramCtrlMainNumRamInst
+        }
         default: "'0"
         inst_name: sram_ctrl_main
-        top_signame: ast_ram_1p_cfg
+        external: true
+        top_signame: sram_ctrl_main_cfg
+        conn_type: false
+        index: -1
+      }
+      {
+        name: cfg_rsp
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width:
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          param_type: int
+          unpacked_dimensions: null
+          default: 1
+          local: false
+          expose: true
+          name_top: SramCtrlMainNumRamInst
+        }
+        default: "'0"
+        inst_name: sram_ctrl_main
         index: -1
       }
       {
@@ -21283,7 +21922,7 @@
         index: -1
       }
       {
-        name: ram_cfg
+        name: ram_cfg_icache_tag
         struct: ram_1p_cfg
         package: prim_ram_1p_pkg
         type: uni
@@ -21292,6 +21931,58 @@
         inst_name: rv_core_ibex
         default: ""
         top_signame: ast_ram_1p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp_icache_tag
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width:
+        {
+          name: ICacheNWays
+          desc: Number of instruction cache ways
+          param_type: int unsigned
+          unpacked_dimensions: null
+          default: 2
+          local: true
+          expose: true
+          name_top: RvCoreIbexICacheNWays
+        }
+        inst_name: rv_core_ibex
+        index: -1
+      }
+      {
+        name: ram_cfg_icache_data
+        struct: ram_1p_cfg
+        package: prim_ram_1p_pkg
+        type: uni
+        act: rcv
+        width: 1
+        inst_name: rv_core_ibex
+        default: ""
+        top_signame: ast_ram_1p_cfg
+        index: -1
+      }
+      {
+        name: ram_cfg_rsp_icache_data
+        struct: ram_1p_cfg_rsp
+        package: prim_ram_1p_pkg
+        type: uni
+        act: req
+        width:
+        {
+          name: ICacheNWays
+          desc: Number of instruction cache ways
+          param_type: int unsigned
+          unpacked_dimensions: null
+          default: 2
+          local: true
+          expose: true
+          name_top: RvCoreIbexICacheNWays
+        }
+        inst_name: rv_core_ibex
         index: -1
       }
       {
@@ -22389,6 +23080,50 @@
         conn_type: true
         index: -1
         netname: ast_ram_1p_cfg
+      }
+      {
+        package: prim_ram_1p_pkg
+        struct: ram_1p_cfg
+        signame: sram_ctrl_main_cfg_i
+        width:
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          param_type: int
+          unpacked_dimensions: null
+          default: 1
+          local: false
+          expose: true
+          name_top: SramCtrlMainNumRamInst
+        }
+        type: uni
+        default: "'0"
+        direction: in
+        conn_type: false
+        index: -1
+        netname: sram_ctrl_main_cfg
+      }
+      {
+        package: prim_ram_1p_pkg
+        struct: ram_1p_cfg
+        signame: sram_ctrl_ret_aon_cfg_i
+        width:
+        {
+          name: NumRamInst
+          desc: Number of internal RAM instances. Must be the same as ceil(MemSizeRam / InstSize) .
+          param_type: int
+          unpacked_dimensions: null
+          default: 1
+          local: false
+          expose: true
+          name_top: SramCtrlRetAonNumRamInst
+        }
+        type: uni
+        default: "'0"
+        direction: in
+        conn_type: false
+        index: -1
+        netname: sram_ctrl_ret_aon_cfg
       }
       {
         package: prim_ram_2p_pkg

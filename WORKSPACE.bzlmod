@@ -7,29 +7,6 @@
 
 workspace(name = "lowrisc_opentitan")
 
-# Bazel skylib library
-load("//third_party/skylib:repos.bzl", "bazel_skylib_repos")
-bazel_skylib_repos()
-load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-bazel_skylib_workspace()
-
-# Python Toolchain + PIP Dependencies
-load("//third_party/python:repos.bzl", "python_repos")
-python_repos()
-load("//third_party/python:deps.bzl", "python_deps")
-python_deps()
-load("//third_party/python:pip.bzl", "pip_deps")
-pip_deps()
-load("@ot_python_deps//:requirements.bzl", install_ot_python_deps="install_deps")
-install_ot_python_deps()
-
-# Google/Bazel dependencies.  This needs to be after Python initialization
-# so that our preferred python configuration takes precedence.
-load("//third_party/google:repos.bzl", "google_repos")
-google_repos()
-load("//third_party/google:deps.bzl", "google_deps")
-google_deps()
-
 # CRT is the Compiler Repository Toolkit.  It contains the configuration for
 # the windows compiler.
 load("//third_party/crt:repos.bzl", "crt_repos")
@@ -45,50 +22,23 @@ crt_register_toolchains(riscv32 = True)
 load("//third_party/github:repos.bzl", "github_tools_repos")
 github_tools_repos()
 
-# Go Toolchain (needed by the Buildifier linter)
-load("//third_party/go:repos.bzl", "go_repos")
-go_repos()
-load("//third_party/go:deps.bzl", "go_deps")
-go_deps()
-
 # Various linters
 load("//third_party/lint:repos.bzl", "lint_repos")
 lint_repos()
-load("//third_party/lint:deps.bzl", "lint_deps")
-lint_deps()
-load("@lowrisc_misc_linters_pip//:requirements.bzl", install_lowrisc_lint_python_deps="install_deps")
-install_lowrisc_lint_python_deps()
 
 # Lychee link checker.
 load("//third_party/lychee:repos.bzl", "lychee_repos")
 lychee_repos()
 
-load("//third_party/google:repos.bzl", "fuzzing_repos")
-fuzzing_repos()
-load("//third_party/google:fuzzing_deps.bzl", "fuzzing_deps")
-fuzzing_deps()
-load("@fuzzing_py_deps//:requirements.bzl", install_fuzzing_python_deps="install_deps")
-install_fuzzing_python_deps()
-
 # Rust Toolchain + crates.io Dependencies
 load("//third_party/rust:repos.bzl", "rust_repos")
 rust_repos()
-load("//third_party/rust:deps.bzl", "rust_deps")
-rust_deps()
-
-load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
-crate_universe_dependencies(bootstrap = True)
-
-load("//third_party/rust/crates:crates.bzl", "crate_repositories")
-crate_repositories()
 
 # Shellcheck
 load("//third_party/shellcheck:repos.bzl", "shellcheck_repos")
 shellcheck_repos()
 
 # Tock dependencies.
-load("//third_party/tock/crates:crates.bzl", tock_crate_repositories = "crate_repositories")
-tock_crate_repositories()
 load("//third_party/tock:repos.bzl", tock_repos="tock_repos")
 tock_repos(
     # For developing tock/libtock along side OpenTitan, set these parameters
@@ -142,10 +92,6 @@ wycheproof_repos()
 # SPHINCS+ Test Vectors
 load("//third_party/sphincsplus:repos.bzl", "sphincsplus_repos")
 sphincsplus_repos()
-
-# Bitstreams from https://storage.googleapis.com/opentitan-bitstreams/
-load("//rules:bitstreams.bzl", "bitstreams_repo")
-bitstreams_repo(name = "bitstreams")
 
 # CBOR reader & writer from open-dice
 load("//third_party/open-dice:repos.bzl", "open_dice_repos")

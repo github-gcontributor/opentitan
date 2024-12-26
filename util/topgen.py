@@ -21,6 +21,7 @@ from ipgen import (IpBlockRenderer, IpConfig, IpDescriptionOnlyRenderer,
                    IpTemplate, TemplateRenderError)
 from mako import exceptions
 from mako.template import Template
+from raclgen.lib import DEFAULT_RACL_CONFIG, parse_racl_config
 from reggen import access, gen_rtl, gen_sec_cm_testplan, window
 from reggen.countermeasure import CounterMeasure
 from reggen.inter_signal import InterSignal
@@ -407,6 +408,10 @@ def generate_pwrmgr(top: Dict[str, object], out_path: Path) -> None:
     n_rom_ctrl = lib.num_rom_ctrl(top['module'])
     assert n_rom_ctrl > 0
 
+    # Add another artificial ROM_CTRL input to allow IBEX halting that input
+    if top['power'].get('halt_ibex_via_rom_ctrl', False):
+        n_rom_ctrl += 1
+
     if n_wkups < 1:
         n_wkups = 1
         log.warning(
@@ -520,6 +525,42 @@ def generate_ac_range_check(topcfg: Dict[str, object], out_path: Path) -> None:
     }
 
     ipgen_render("ac_range_check", topname, params, out_path)
+
+
+# Generate RACL collateral
+def generate_racl(topcfg: Dict[str, object], out_path: Path) -> None:
+    # Not all tops use RACL
+    if 'racl_config' not in topcfg:
+        return
+
+    topcfg['racl'] = parse_racl_config(topcfg['racl_config'])
+
+    log.info('Generating RACL Control IP with ipgen')
+    topname = topcfg['name']
+
+    for racl_group, policies in topcfg['racl']['policies'].items():
+        params = {
+            "nr_role_bits": 4,
+            "nr_ctn_uid_bits": 8,
+            "nr_policies": len(policies),
+            "policies": policies
+        }
+
+        # If we have more RACL policy groups, uniquify the control IP
+        # if len(topcfg['racl']['policies']) > 1:
+        #     params['module_instance_name'] = f'racl_ctrl_{racl_group}'
+
+        # # Only render the RACL groups that are really instantiated in that top
+        # for m in topcfg['module']:
+        #     if m['name'] == params['module_instance_name']:
+        #         ipgen_render("racl_ctrl", topname, params, out_path)
+        #         break
+        # TODO(#25673): The obove code, would be the correct if ipgen correctly supports rendering
+        # multiple instances and allow topgen to instantiate right now. This support is not yet
+        # implemented properly. Therefore, simply render the first RACL group to the RACL control
+        # IP.
+        ipgen_render("racl_ctrl", topname, params, out_path)
+        break
 
 
 def generate_top_only(top_only_dict: Dict[str, bool], out_path: Path,
@@ -862,6 +903,9 @@ def _process_top(
     # Generate ac_range_check
     generate_ac_range_check(completecfg, out_path)
 
+    # Generate RACL collateral
+    generate_racl(completecfg, out_path)
+
     # Generate top only modules
     # These modules are not ipgen, but are not in hw/ip
     generate_top_only(top_only_dict, cfg_path, top_name, args.hjson_path)
@@ -1045,6 +1089,8 @@ def main():
         # that to the alert handler's module definition.
         if 'incoming_alert' not in topcfg:
             topcfg['incoming_alert'] = {}
+        if 'incoming_interrupt' not in topcfg:
+            topcfg['incoming_interrupt'] = OrderedDict()
 
         for m in topcfg['module']:
             if m['type'] == 'alert_handler':
@@ -1054,6 +1100,12 @@ def main():
                         mapping = hjson.load(falert)
                         for alert_group, alerts in mapping.items():
                             topcfg['incoming_alert'][alert_group] = alerts
+            elif m['type'] == 'rv_plic':
+                for irq_mappings_path in m.get('incoming_interrupt', []):
+                    with open(Path(args.topcfg).parent / irq_mappings_path, "r") as firq:
+                        irq_mapping = hjson.load(firq)
+                        for irq_group, irqs in irq_mapping.items():
+                            topcfg['incoming_interrupt'][irq_group] = irqs
     except ValueError:
         raise SystemExit(sys.exc_info()[1])
 
@@ -1237,6 +1289,12 @@ def main():
                         out_path / f"rtl/autogen/{top_name}_rnd_cnst_pkg.sv",
                         gencmd=gencmd)
 
+        racl_config = completecfg.get('racl', DEFAULT_RACL_CONFIG)
+        render_template(TOPGEN_TEMPLATE_PATH / 'toplevel_racl_pkg.sv.tpl',
+                        out_path / 'rtl' / 'autogen' / 'top_racl_pkg.sv',
+                        gencmd=gencmd,
+                        racl_config=racl_config)
+
         # Since SW does not use FuseSoC and instead expects those files always
         # to be in hw/top_{topname}/sw/autogen, we currently create these files
         # twice:
@@ -1248,6 +1306,8 @@ def main():
         ]
         for idx, path in enumerate(out_paths):
             # C Header + C File + Clang-format file
+            gencmd_c = warnhdr + GENCMD.format(top_name=top_name)
+            gencmd_bzl = gencmd_c.replace("//", "#")
 
             # "clang-format" -> "sw/autogen/.clang-format"
             cformat_tplpath = TOPGEN_TEMPLATE_PATH / "clang-format"
@@ -1265,7 +1325,8 @@ def main():
             cheader_path = cformat_dir / f"{top_name}.h"
             render_template(TOPGEN_TEMPLATE_PATH / "toplevel.h.tpl",
                             cheader_path,
-                            helper=c_helper)
+                            helper=c_helper,
+                            gencmd=gencmd_c)
 
             # Save the relative header path into `c_helper`
             rel_header_path = cheader_path.relative_to(root_paths[idx])
@@ -1274,18 +1335,28 @@ def main():
             # "toplevel.c.tpl" -> "sw/autogen/{top_name}.c"
             render_template(TOPGEN_TEMPLATE_PATH / "toplevel.c.tpl",
                             cformat_dir / f"{top_name}.c",
-                            helper=c_helper)
+                            helper=c_helper,
+                            gencmd=gencmd_c)
 
             # "toplevel_memory.ld.tpl" -> "sw/autogen/{top_name}_memory.ld"
             render_template(TOPGEN_TEMPLATE_PATH / "toplevel_memory.ld.tpl",
                             cformat_dir / f"{top_name}_memory.ld",
-                            helper=c_helper)
+                            helper=c_helper,
+                            gencmd=gencmd_c)
 
             # "toplevel_memory.h.tpl" -> "sw/autogen/{top_name}_memory.h"
             memory_cheader_path = cformat_dir / f"{top_name}_memory.h"
             render_template(TOPGEN_TEMPLATE_PATH / "toplevel_memory.h.tpl",
                             memory_cheader_path,
-                            helper=c_helper)
+                            helper=c_helper,
+                            gencmd=gencmd_c)
+
+            # "toplevel_BUILD.h.tpl" -> "sw/autogen/BUILD"
+            memory_cheader_path = cformat_dir / "BUILD"
+            render_template(TOPGEN_TEMPLATE_PATH / "toplevel_BUILD.tpl",
+                            memory_cheader_path,
+                            helper=c_helper,
+                            gencmd=gencmd_bzl)
 
         # generate chip level xbar and alert_handler TB
         tb_files = [
